@@ -1,19 +1,20 @@
 package io.github.libraryapi.model
 
+import io.github.libraryapi.controller.dto.AuthorDTO
 import jakarta.persistence.*
-import lombok.Getter
-import lombok.Setter
-import lombok.ToString
-import java.util.UUID
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 @Entity
 @Table(
-    name = "authors",
+    name = "tb_author",
     schema = "public"
 )
-@Getter @Setter
-@ToString
+@EntityListeners(AuditingEntityListener::class)
 class Author {
 
     @Id @Column(name = "id") @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,4 +32,22 @@ class Author {
     @OneToMany(mappedBy = "author")
     var books: MutableList<Book> = mutableListOf()
 
+    @Column(name = "created_at") @CreatedDate
+    private lateinit var createdAt: LocalDateTime
+
+    @Column(name = "updated_at") @LastModifiedDate
+    private lateinit var updatedAt: LocalDateTime
+
+    @Column(name = "id_user")
+    private lateinit var userId: UUID
+
+}
+
+fun Author.toAuthorDTO(): AuthorDTO {
+    return AuthorDTO(
+        id = this.id,
+        name = this.name,
+        birthDate = this.birthDate,
+        nationality = this.nationality
+    )
 }

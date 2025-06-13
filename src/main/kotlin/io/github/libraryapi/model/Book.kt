@@ -15,7 +15,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(
-    name = "books",
+    name = "tb_book",
     schema = "public"
 )
 @Data
@@ -40,7 +40,7 @@ class Book {
     @Column(name = "price", precision = 18, scale = 2)
     var price: BigDecimal = BigDecimal.ZERO
 
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne//(cascade = [CascadeType.ALL])
     @JoinColumn(name = "id_author")
     lateinit var author: Author
 
