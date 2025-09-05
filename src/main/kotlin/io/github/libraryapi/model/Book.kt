@@ -1,5 +1,6 @@
 package io.github.libraryapi.model
 
+import io.github.libraryapi.controller.dto.RegisterBookDTO
 import jakarta.persistence.*
 import lombok.AllArgsConstructor
 import lombok.Data
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor
 import lombok.RequiredArgsConstructor
 import lombok.Setter
 import lombok.ToString
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.math.BigDecimal
 import java.util.UUID
 import java.time.LocalDate
@@ -19,6 +21,7 @@ import java.time.LocalDate
     schema = "public"
 )
 @Data
+@EntityListeners(AuditingEntityListener::class)
 class Book {
 
     @Id @Column(name = "id") @GeneratedValue(strategy = GenerationType.UUID)
@@ -44,4 +47,15 @@ class Book {
     @JoinColumn(name = "id_author")
     lateinit var author: Author
 
+}
+
+fun Book.toRegisterBookDTO(): RegisterBookDTO {
+    return RegisterBookDTO(
+        isbn = this.isbn,
+        title = this.title,
+        publishedDate = this.publishedDate,
+        genre = this.genre,
+        price = this.price,
+        authorId = this.author.id
+    )
 }

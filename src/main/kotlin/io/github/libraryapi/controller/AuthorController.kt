@@ -2,12 +2,11 @@ package io.github.libraryapi.controller
 
 import io.github.libraryapi.controller.dto.AuthorDTO
 import io.github.libraryapi.controller.dto.ResponseError
-import io.github.libraryapi.controller.dto.toAuthor
 import io.github.libraryapi.exceptions.DuplicatedRegistryException
 import io.github.libraryapi.exceptions.OperationNotAllowedException
-import io.github.libraryapi.model.Author
 import io.github.libraryapi.model.toAuthorDTO
 import io.github.libraryapi.service.AuthorService
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.URI
@@ -21,7 +20,7 @@ class AuthorController(
 
     @PostMapping
     fun save(
-        @RequestBody author: AuthorDTO
+        @RequestBody @Valid author: AuthorDTO
     ): ResponseEntity<ResponseError> {
         try {
             val authorSaved = authorService.save(
@@ -90,7 +89,7 @@ class AuthorController(
     @PutMapping("/{id}")
     fun update(
         @PathVariable("id") id: String,
-        @RequestBody author: AuthorDTO
+        @RequestBody @Valid author: AuthorDTO
     ): ResponseEntity<ResponseError> {
         val authorId = UUID.fromString(id)
         val authorOptional = authorService.getById(authorId)

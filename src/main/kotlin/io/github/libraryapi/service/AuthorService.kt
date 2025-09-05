@@ -3,9 +3,12 @@ package io.github.libraryapi.service
 import io.github.libraryapi.controller.dto.AuthorDTO
 import io.github.libraryapi.exceptions.OperationNotAllowedException
 import io.github.libraryapi.model.Author
+import io.github.libraryapi.model.factory.AuthorFactory
 import io.github.libraryapi.repository.AuthorRepository
 import io.github.libraryapi.repository.BookRepository
 import io.github.libraryapi.validator.AuthorValidator
+import org.springframework.data.domain.Example
+import org.springframework.data.domain.ExampleMatcher
 import org.springframework.stereotype.Service
 import java.util.Optional
 import java.util.UUID
@@ -35,7 +38,26 @@ class AuthorService(
 
 
     fun find(name: String, nationality: String): List<Author> {
-        return authorRepository.findAnExistingAuthors(name, nationality)
+        val matcher = ExampleMatcher
+            .matching()
+            .withIgnorePaths("id", "birthDate")
+            .withIgnoreNullValues()
+            .withIgnoreCase()
+            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+
+        val authorExample = Example.of(
+            AuthorFactory.createWithNameAndNationality(
+                name = name,
+                nationality = nationality
+            ),
+            matcher
+        )
+
+        return authorRepository.findAll(
+            authorExample
+        )
+
+//        return authorRepository.findAnExistingAuthors(name, nationality)
     }
 
     fun update(author: Author): Author {
