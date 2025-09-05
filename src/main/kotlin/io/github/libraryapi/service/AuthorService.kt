@@ -3,6 +3,7 @@ package io.github.libraryapi.service
 import io.github.libraryapi.controller.dto.AuthorDTO
 import io.github.libraryapi.exceptions.OperationNotAllowedException
 import io.github.libraryapi.model.Author
+import io.github.libraryapi.exceptions.AuthorNotFoundException
 import io.github.libraryapi.model.factory.AuthorFactory
 import io.github.libraryapi.repository.AuthorRepository
 import io.github.libraryapi.repository.BookRepository
@@ -25,9 +26,8 @@ class AuthorService(
         return authorRepository.save(author)
     }
 
-    fun getById(authorId: UUID): Optional<Author> {
-        return authorRepository.findById(authorId)
-    }
+    fun getById(authorId: UUID): Author =
+        authorRepository.findById(authorId).orElseThrow { throw AuthorNotFoundException() }
 
     fun delete(author: Author) {
         if (doesAuthorHasBooks(author)) {

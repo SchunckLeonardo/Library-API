@@ -22,18 +22,13 @@ class AuthorController(
     fun save(
         @RequestBody @Valid author: AuthorDTO
     ): ResponseEntity<ResponseError> {
-        try {
-            val authorSaved = authorService.save(
-                author.toAuthor()
-            )
+        val authorSaved = authorService.save(
+            author.toAuthor()
+        )
 
-            return ResponseEntity.created(
-                URI.create("/authors/${authorSaved.id}")
-            ).build()
-        } catch (e: DuplicatedRegistryException) {
-            val errorDTO = ResponseError.conflict("${author.name} already registered")
-            return ResponseEntity.status(errorDTO.status).body(errorDTO)
-        }
+        return ResponseEntity.created(
+            URI.create("/authors/${authorSaved.id}")
+        ).build()
     }
 
     @GetMapping("/{id}")
@@ -44,12 +39,8 @@ class AuthorController(
 
         val author = authorService.getById(authorId)
 
-        if (!author.isPresent) {
-            return ResponseEntity.notFound().build()
-        }
-
         return ResponseEntity.ok(
-            author.get().toAuthorDTO()
+            author.toAuthorDTO()
         )
     }
 
@@ -60,17 +51,7 @@ class AuthorController(
         val authorId = UUID.fromString(id)
 
         val authorOptional = authorService.getById(authorId)
-
-        if (authorOptional.isEmpty) {
-            return ResponseEntity.notFound().build()
-        }
-
-        try {
-            authorService.delete(authorOptional.get())
-        } catch (e: OperationNotAllowedException) {
-            val errorDTO = ResponseError.defaultResponse(e.message)
-            return ResponseEntity.status(errorDTO.status).body(errorDTO)
-        }
+        authorService.delete(authorOptional)
         return ResponseEntity.noContent().build()
     }
 
@@ -92,23 +73,13 @@ class AuthorController(
         @RequestBody @Valid author: AuthorDTO
     ): ResponseEntity<ResponseError> {
         val authorId = UUID.fromString(id)
-        val authorOptional = authorService.getById(authorId)
+        val existingAuthor = authorService.getById(authorId)
 
-        if (!authorOptional.isPresent) {
-            return ResponseEntity.notFound().build()
-        }
-
-        val existingAuthor = authorOptional.get()
         existingAuthor.name = author.name
         existingAuthor.birthDate = author.birthDate
         existingAuthor.nationality = author.nationality
 
-        try {
-            authorService.update(existingAuthor).toAuthorDTO()
-        } catch (e: DuplicatedRegistryException) {
-            val errorDTO = ResponseError.conflict("${author.name} already registered")
-            return ResponseEntity.status(errorDTO.status).body(errorDTO)
-        }
+        authorService.update(existingAuthor).toAuthorDTO()
 
         return ResponseEntity.noContent().build()
     }

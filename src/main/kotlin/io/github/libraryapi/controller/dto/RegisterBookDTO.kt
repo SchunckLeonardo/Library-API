@@ -10,19 +10,20 @@ import java.time.LocalDate
 import java.util.UUID
 
 data class RegisterBookDTO(
-    @ISBN
-    @NotBlank(message = "required field")
-    val isbn: String,
+    @field:ISBN
+    @field:NotBlank(message = "required field")
+    val isbn: String?,
 
-    @NotBlank(message = "required field")
-    val title: String,
+    @field:NotBlank(message = "required field")
+    val title: String?,
 
-    @NotNull(message = "required field")
-    @Past(message = "cannot be a future date")
-    val publishedDate: LocalDate,
-    val genre: BookGenre,
-    val price: BigDecimal,
+    @field:NotNull(message = "required field")
+    @field:Past(message = "cannot be a future date")
+    val publishedDate: LocalDate?,
+    val genre: String?,
+    val price: BigDecimal?,
 
-    @NotNull(message = "required field")
-    val authorId: UUID
+    @field:NotNull(message = "required field")
+    val authorId: UUID?
 )
+

@@ -1,5 +1,7 @@
 package io.github.libraryapi.model
 
+import io.github.libraryapi.controller.dto.BookDTO
+import io.github.libraryapi.controller.dto.GetBookResponseDTO
 import io.github.libraryapi.controller.dto.RegisterBookDTO
 import jakarta.persistence.*
 import lombok.AllArgsConstructor
@@ -22,40 +24,62 @@ import java.time.LocalDate
 )
 @Data
 @EntityListeners(AuditingEntityListener::class)
-class Book {
+data class Book(
 
     @Id @Column(name = "id") @GeneratedValue(strategy = GenerationType.UUID)
-    lateinit var id: UUID
+    var id: UUID? = null,
 
     @Column(name = "isbn", length = 20, nullable = false)
-    lateinit var isbn: String
+    var isbn: String? = null,
 
     @Column(name = "title", length = 150, nullable = false)
-    lateinit var title: String
+    var title: String? = null,
 
     @Column(name = "published_date")
-    lateinit var publishedDate: LocalDate
+    var publishedDate: LocalDate? = null,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "genre", length = 30, nullable = false)
-    lateinit var genre: BookGenre
+    var genre: BookGenre? = null,
 
     @Column(name = "price", precision = 18, scale = 2)
-    var price: BigDecimal = BigDecimal.ZERO
+    var price: BigDecimal = BigDecimal.ZERO,
 
     @ManyToOne//(cascade = [CascadeType.ALL])
     @JoinColumn(name = "id_author")
-    lateinit var author: Author
+    var author: Author? = null
 
-}
+)
 
 fun Book.toRegisterBookDTO(): RegisterBookDTO {
     return RegisterBookDTO(
         isbn = this.isbn,
         title = this.title,
         publishedDate = this.publishedDate,
-        genre = this.genre,
+        genre = this.genre?.name,
         price = this.price,
-        authorId = this.author.id
+        authorId = this.author?.id
     )
 }
+
+fun Book.toBookDTO(): BookDTO =
+    BookDTO(
+        id = this.id,
+        isbn = this.isbn,
+        title = this.title,
+        publishedDate = this.publishedDate,
+        genre = this.genre,
+        price = this.price,
+        author = this.author?.toAuthorDTO()
+    )
+
+fun Book.toGetBookResponseDTO(): GetBookResponseDTO =
+    GetBookResponseDTO(
+        id = this.id,
+        isbn = this.isbn,
+        title = this.title,
+        publishedDate = this.publishedDate,
+        genre = this.genre,
+        price = this.price,
+        author = this.author?.toGetBookAuthorDTO()
+    )

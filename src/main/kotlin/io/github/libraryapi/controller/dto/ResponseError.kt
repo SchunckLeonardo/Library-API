@@ -2,7 +2,11 @@ package io.github.libraryapi.controller.dto
 
 import org.springframework.http.HttpStatus
 
-data class ResponseError(val status: Int, val message: String, val errors: List<FieldError>) {
+data class ResponseError(
+    val status: Int = 0,
+    val message: String = "",
+    val errors: List<FieldError> = emptyList()
+) {
 
     companion object {
         fun defaultResponse(message: String): ResponseError {

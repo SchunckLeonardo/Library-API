@@ -1,6 +1,7 @@
 package io.github.libraryapi.model
 
 import io.github.libraryapi.controller.dto.AuthorDTO
+import io.github.libraryapi.controller.dto.GetBookAuthorDTO
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -51,3 +52,10 @@ fun Author.toAuthorDTO(): AuthorDTO {
         nationality = this.nationality
     )
 }
+
+fun Author.toGetBookAuthorDTO(): GetBookAuthorDTO =
+    GetBookAuthorDTO(
+        name = this.name,
+        birthDate = this.birthDate,
+        nationality = this.nationality,
+    )
