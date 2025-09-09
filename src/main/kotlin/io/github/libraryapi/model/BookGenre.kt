@@ -6,5 +6,14 @@ enum class BookGenre {
     MYSTERY,
     ROMANCE,
     BIOGRAPHY,
-    SCIENCE
+    SCIENCE;
+
+    companion object {
+
+        fun getValue(value: String): BookGenre {
+            return BookGenre.valueOf(value.uppercase())
+        }
+
+    }
+
 }

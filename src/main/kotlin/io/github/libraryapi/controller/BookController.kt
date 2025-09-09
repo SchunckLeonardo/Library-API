@@ -1,8 +1,10 @@
 package io.github.libraryapi.controller
 
 import io.github.libraryapi.controller.dto.BookDTO
+import io.github.libraryapi.controller.dto.FindBooksRequestDTO
 import io.github.libraryapi.controller.dto.GetBookResponseDTO
 import io.github.libraryapi.controller.dto.RegisterBookDTO
+import io.github.libraryapi.model.BookGenre
 import io.github.libraryapi.service.BookService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -41,10 +43,24 @@ class BookController(
         return ResponseEntity.noContent().build()
     }
 
-    //@GetMapping
-    //fun findBooks(): ResponseEntity<List<GetBookResponseDTO>> {
-
-    //}
+    @GetMapping
+    fun findBooks(
+        @RequestParam(required = false) isbn: String?,
+        @RequestParam(required = false) title: String?,
+        @RequestParam(required = false) genre: String?,
+        @RequestParam(required = false) authorName: String?,
+        @RequestParam(required = false) yearPublishedDate: Int?
+    ): ResponseEntity<List<GetBookResponseDTO>> {
+        return ResponseEntity.ok(bookService.findBooks(
+            FindBooksRequestDTO(
+                isbn = isbn,
+                title = title,
+                genre = genre,
+                authorName = authorName,
+                yearPublishedDate = yearPublishedDate
+            )
+        ))
+    }
 
 
 }

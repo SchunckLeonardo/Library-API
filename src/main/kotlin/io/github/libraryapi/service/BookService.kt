@@ -53,19 +53,27 @@ class BookService(
     }
 
     fun findBooks(request: FindBooksRequestDTO): List<GetBookResponseDTO> {
-        val specs = Specification
+        var specs = Specification
             .where<Book> { _, _, cb -> cb.conjunction() }
 
         if (request.isbn != null) {
-            specs.and(BookSpecs.isbnEqual(request.isbn))
+            specs = specs.and(BookSpecs.isbnEqual(request.isbn))
         }
 
         if (request.title != null) {
-            specs.and(BookSpecs.titleLike(request.title))
+            specs = specs.and(BookSpecs.titleLike(request.title))
         }
 
         if (request.genre != null) {
-            specs.and(BookSpecs.genreEqual(BookGenre.valueOf(request.genre.name)))
+            specs = specs.and(BookSpecs.genreEqual(BookGenre.getValue(request.genre)))
+        }
+
+        if (request.yearPublishedDate != null) {
+            specs = specs.and(BookSpecs.yearPublishedDateEqual(request.yearPublishedDate))
+        }
+
+        if (request.authorName != null) {
+            specs = specs.and(BookSpecs.authorNameLike(request.authorName))
         }
 
         return bookRepository.findAll(specs).map { it.toGetBookResponseDTO() }
