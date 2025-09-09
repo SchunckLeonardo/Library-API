@@ -1,9 +1,6 @@
 package io.github.libraryapi.service
 
-import io.github.libraryapi.controller.dto.BookDTO
-import io.github.libraryapi.controller.dto.FindBooksRequestDTO
-import io.github.libraryapi.controller.dto.GetBookResponseDTO
-import io.github.libraryapi.controller.dto.RegisterBookDTO
+import io.github.libraryapi.controller.dto.*
 import io.github.libraryapi.exceptions.BookNotFoundException
 import io.github.libraryapi.model.Book
 import io.github.libraryapi.model.BookGenre
@@ -12,7 +9,9 @@ import io.github.libraryapi.model.toGetBookResponseDTO
 import io.github.libraryapi.repository.BookRepository
 import io.github.libraryapi.service.specs.BookSpecs
 import io.github.libraryapi.validator.BookValidator
-import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -20,7 +19,8 @@ import java.util.UUID
 class BookService(
     private val bookRepository: BookRepository,
     private val authorService: AuthorService,
-    private val bookValidator: BookValidator
+    private val bookValidator: BookValidator,
+    private val bookSpecs: BookSpecs
 ) {
 
     fun save(request: RegisterBookDTO): BookDTO {
@@ -39,9 +39,7 @@ class BookService(
     }
 
     fun getById(bookId: UUID): GetBookResponseDTO =
-        bookRepository
-            .findById(bookId)
-            .orElseThrow { throw BookNotFoundException() }
+        getBookById(bookId)
             .toGetBookResponseDTO()
 
     fun delete(bookId: UUID) {
@@ -52,31 +50,35 @@ class BookService(
         bookRepository.delete(book)
     }
 
-    fun findBooks(request: FindBooksRequestDTO): List<GetBookResponseDTO> {
-        var specs = Specification
-            .where<Book> { _, _, cb -> cb.conjunction() }
+    fun findBooks(request: FindBooksRequestDTO): List<GetBookResponseDTO> =
+        bookRepository.findAll(
+            bookSpecs.getSpecsAndValidate(request),
+            PageRequest.of(
+                request.page,
+                request.size,
+                Sort.Direction.ASC,
+                "title"
+            )
+        ).map { it.toGetBookResponseDTO() }.toList()
 
-        if (request.isbn != null) {
-            specs = specs.and(BookSpecs.isbnEqual(request.isbn))
-        }
+    fun updateBook(bookId: UUID, dto: BookUpdateDTO) {
+        val book = getBookById(bookId)
 
-        if (request.title != null) {
-            specs = specs.and(BookSpecs.titleLike(request.title))
-        }
+        dto.isbn?.let { bookValidator.validateIsbn(it) }
 
-        if (request.genre != null) {
-            specs = specs.and(BookSpecs.genreEqual(BookGenre.getValue(request.genre)))
-        }
+        book.isbn = dto.isbn ?: book.isbn
+        book.title = dto.title ?: book.title
+        book.publishedDate = dto.publishedDate ?: book.publishedDate
+        book.genre = dto.genre?.let { BookGenre.getValue(it) } ?: book.genre
+        book.price = dto.price ?: book.price
+        book.author = dto.authorId?.let { authorService.getById(it) } ?: book.author
 
-        if (request.yearPublishedDate != null) {
-            specs = specs.and(BookSpecs.yearPublishedDateEqual(request.yearPublishedDate))
-        }
-
-        if (request.authorName != null) {
-            specs = specs.and(BookSpecs.authorNameLike(request.authorName))
-        }
-
-        return bookRepository.findAll(specs).map { it.toGetBookResponseDTO() }
+        bookRepository.save(book)
     }
+
+    private fun getBookById(bookId: UUID): Book =
+        bookRepository
+            .findById(bookId)
+            .orElseThrow { throw BookNotFoundException() }
 
 }

@@ -1,12 +1,10 @@
 package io.github.libraryapi.controller
 
-import io.github.libraryapi.controller.dto.BookDTO
-import io.github.libraryapi.controller.dto.FindBooksRequestDTO
-import io.github.libraryapi.controller.dto.GetBookResponseDTO
-import io.github.libraryapi.controller.dto.RegisterBookDTO
+import io.github.libraryapi.controller.dto.*
 import io.github.libraryapi.model.BookGenre
 import io.github.libraryapi.service.BookService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.URI
@@ -49,7 +47,9 @@ class BookController(
         @RequestParam(required = false) title: String?,
         @RequestParam(required = false) genre: String?,
         @RequestParam(required = false) authorName: String?,
-        @RequestParam(required = false) yearPublishedDate: Int?
+        @RequestParam(required = false) yearPublishedDate: Int?,
+        @RequestParam(required = false) page: Int?,
+        @RequestParam(required = false) size: Int?
     ): ResponseEntity<List<GetBookResponseDTO>> {
         return ResponseEntity.ok(bookService.findBooks(
             FindBooksRequestDTO(
@@ -57,9 +57,21 @@ class BookController(
                 title = title,
                 genre = genre,
                 authorName = authorName,
-                yearPublishedDate = yearPublishedDate
+                yearPublishedDate = yearPublishedDate,
+                page = page ?: 0,
+                size = size ?: 10
             )
         ))
+    }
+
+    @PutMapping("/{id}")
+    fun updateBook(
+        @PathVariable id: String,
+        @RequestBody @Valid dto: BookUpdateDTO
+    ): ResponseEntity<Any> {
+        val uuid = UUID.fromString(id)
+        bookService.updateBook(uuid, dto)
+        return ResponseEntity.noContent().build()
     }
 
 
