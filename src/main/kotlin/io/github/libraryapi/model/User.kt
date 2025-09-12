@@ -17,6 +17,9 @@ data class User(
     val login: String? = "",
 
     @Column
+    val email: String? = "",
+
+    @Column
     var password: String? = "",
 
     @Type(ListArrayType::class)

@@ -35,7 +35,7 @@ class BookService(
                 genre = BookGenreEnum.valueOf(request.genre ?: ""),
                 price = request.price ?: throw IllegalArgumentException("Price is required"),
                 author = authorService.getById(request.authorId ?: throw IllegalArgumentException("Author ID is required")),
-                user = securityService.getUserSigned()
+                user = securityService.getUserSigned() ?: throw IllegalStateException("No user logged in")
             )
         ).toBookDTO()
     }

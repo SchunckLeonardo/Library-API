@@ -11,11 +11,12 @@ class SecurityService(
     private val userService: UserService
 ) {
 
-    fun getUserSigned(): User {
-        val authentication = SecurityContextHolder.getContext().authentication
-        val userDetails: UserDetails = authentication.principal as UserDetails
-        val login = userDetails.username
-        return userService.getLogin(login)
-    }
+    fun getUserSigned(): User? =
+        when (val authentication = SecurityContextHolder.getContext().authentication) {
+            is CustomAuthentication -> {
+                authentication.principal as User
+            }
+            else -> null
+        }
 
 }

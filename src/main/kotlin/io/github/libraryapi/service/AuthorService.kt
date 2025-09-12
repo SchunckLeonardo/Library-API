@@ -25,7 +25,9 @@ class AuthorService(
     fun save(authorDTO: AuthorDTO): Author {
         val author = authorDTO.toAuthor()
 
-        author.user = securityService.getUserSigned()
+        securityService.getUserSigned()?.let {
+            author.user = it
+        }
 
         authorValidator.validate(author)
 

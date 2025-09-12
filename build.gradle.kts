@@ -33,6 +33,7 @@ dependencies {
 
 	implementation("org.mapstruct:mapstruct:1.6.3")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 	testImplementation("org.springframework.security:spring-security-test")
 
 	implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.11.0")

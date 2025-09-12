@@ -2,15 +2,11 @@ package io.github.libraryapi.controller
 
 import io.github.libraryapi.controller.dto.AuthorDTO
 import io.github.libraryapi.controller.dto.ResponseError
-import io.github.libraryapi.exceptions.DuplicatedRegistryException
-import io.github.libraryapi.exceptions.OperationNotAllowedException
 import io.github.libraryapi.model.toAuthorDTO
 import io.github.libraryapi.service.AuthorService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 import java.util.*
