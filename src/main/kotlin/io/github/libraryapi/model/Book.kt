@@ -3,15 +3,9 @@ package io.github.libraryapi.model
 import io.github.libraryapi.controller.dto.BookDTO
 import io.github.libraryapi.controller.dto.GetBookResponseDTO
 import io.github.libraryapi.controller.dto.RegisterBookDTO
+import io.github.libraryapi.model.enums.BookGenreEnum
 import jakarta.persistence.*
-import lombok.AllArgsConstructor
 import lombok.Data
-import lombok.EqualsAndHashCode
-import lombok.Getter
-import lombok.NoArgsConstructor
-import lombok.RequiredArgsConstructor
-import lombok.Setter
-import lombok.ToString
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.math.BigDecimal
 import java.util.UUID
@@ -40,14 +34,18 @@ data class Book(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "genre", length = 30, nullable = false)
-    var genre: BookGenre? = null,
+    var genre: BookGenreEnum? = null,
 
     @Column(name = "price", precision = 18, scale = 2)
     var price: BigDecimal = BigDecimal.ZERO,
 
     @ManyToOne//(cascade = [CascadeType.ALL])
     @JoinColumn(name = "id_author")
-    var author: Author? = null
+    var author: Author? = null,
+
+    @ManyToOne
+    @JoinColumn(name = "id_user")
+    var user: User
 
 )
 

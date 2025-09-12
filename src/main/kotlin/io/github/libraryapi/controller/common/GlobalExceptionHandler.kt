@@ -7,6 +7,7 @@ import io.github.libraryapi.exceptions.BookNotFoundException
 import io.github.libraryapi.exceptions.DuplicatedRegistryException
 import io.github.libraryapi.exceptions.OperationNotAllowedException
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -23,6 +24,17 @@ class GlobalExceptionHandler {
         return ResponseError(
             message = e.message ?: "Unexpected error",
             status = HttpStatus.INTERNAL_SERVER_ERROR.value()
+        )
+    }
+
+    @ExceptionHandler(AccessDeniedException::class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun handleAccessDeniedException(
+        e: AccessDeniedException
+    ): ResponseError {
+        return ResponseError(
+            message = e.message ?: "Unexpected error",
+            status = HttpStatus.FORBIDDEN.value()
         )
     }
 
@@ -69,7 +81,7 @@ class GlobalExceptionHandler {
     ): ResponseError {
         return ResponseError(
             message = e.message,
-            status = HttpStatus.NOT_FOUND.value()
+            status = HttpStatus.CONFLICT.value()
         )
     }
 

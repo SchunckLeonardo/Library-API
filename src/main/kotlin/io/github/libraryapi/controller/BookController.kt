@@ -1,11 +1,10 @@
 package io.github.libraryapi.controller
 
 import io.github.libraryapi.controller.dto.*
-import io.github.libraryapi.model.BookGenre
 import io.github.libraryapi.service.BookService
 import jakarta.validation.Valid
-import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 import java.util.*
@@ -17,6 +16,7 @@ class BookController(
 ) {
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     fun save(
         @RequestBody @Valid request: RegisterBookDTO
     ): ResponseEntity<BookDTO> {
@@ -27,6 +27,7 @@ class BookController(
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     fun getBookById(
         @PathVariable("id") id: String
     ): ResponseEntity<GetBookResponseDTO> {
@@ -35,6 +36,7 @@ class BookController(
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     fun delete(@PathVariable("id") id: String): ResponseEntity<Any> {
         val uuid = UUID.fromString(id)
         bookService.delete(uuid)
@@ -42,6 +44,7 @@ class BookController(
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     fun findBooks(
         @RequestParam(required = false) isbn: String?,
         @RequestParam(required = false) title: String?,
@@ -65,6 +68,7 @@ class BookController(
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     fun updateBook(
         @PathVariable id: String,
         @RequestBody @Valid dto: BookUpdateDTO

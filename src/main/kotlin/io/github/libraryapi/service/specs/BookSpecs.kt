@@ -3,7 +3,7 @@ package io.github.libraryapi.service.specs
 import io.github.libraryapi.controller.dto.FindBooksRequestDTO
 import io.github.libraryapi.model.Author
 import io.github.libraryapi.model.Book
-import io.github.libraryapi.model.BookGenre
+import io.github.libraryapi.model.enums.BookGenreEnum
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -26,9 +26,9 @@ class BookSpecs {
             )
         }
 
-    private fun genreEqual(genre: BookGenre): Specification<Book> =
+    private fun genreEqual(genre: BookGenreEnum): Specification<Book> =
         Specification<Book> { root, _, cb ->
-            cb.equal(root.get<BookGenre>("genre"), genre)
+            cb.equal(root.get<BookGenreEnum>("genre"), genre)
         }
 
     private fun yearPublishedDateEqual(yearPublishedDate: Int): Specification<Book> =
@@ -51,7 +51,7 @@ class BookSpecs {
         val specs = listOfNotNull(
             request.isbn?.let { isbnEqual(it) },
             request.title?.let { titleLike(it) },
-            request.genre?.let { genreEqual(BookGenre.getValue(it)) },
+            request.genre?.let { genreEqual(BookGenreEnum.getValue(it)) },
             request.yearPublishedDate?.let { yearPublishedDateEqual(it) },
             request.authorName?.let { authorNameLike(it) }
         )

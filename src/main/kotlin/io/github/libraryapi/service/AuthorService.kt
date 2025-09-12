@@ -1,28 +1,34 @@
 package io.github.libraryapi.service
 
 import io.github.libraryapi.controller.dto.AuthorDTO
+import io.github.libraryapi.exceptions.AuthorNotFoundException
 import io.github.libraryapi.exceptions.OperationNotAllowedException
 import io.github.libraryapi.model.Author
-import io.github.libraryapi.exceptions.AuthorNotFoundException
 import io.github.libraryapi.model.factory.AuthorFactory
 import io.github.libraryapi.repository.AuthorRepository
 import io.github.libraryapi.repository.BookRepository
+import io.github.libraryapi.security.SecurityService
 import io.github.libraryapi.validator.AuthorValidator
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.ExampleMatcher
 import org.springframework.stereotype.Service
-import java.util.Optional
-import java.util.UUID
+import java.util.*
 
 @Service
 class AuthorService(
     private val authorRepository: AuthorRepository,
     private val bookRepository: BookRepository,
-    private val authorValidator: AuthorValidator
+    private val authorValidator: AuthorValidator,
+    private val securityService: SecurityService
 ) {
 
-    fun save(author: Author): Author {
+    fun save(authorDTO: AuthorDTO): Author {
+        val author = authorDTO.toAuthor()
+
+        author.user = securityService.getUserSigned()
+
         authorValidator.validate(author)
+
         return authorRepository.save(author)
     }
 

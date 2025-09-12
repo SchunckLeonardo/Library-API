@@ -3,13 +3,13 @@ package io.github.libraryapi.service
 import io.github.libraryapi.controller.dto.*
 import io.github.libraryapi.exceptions.BookNotFoundException
 import io.github.libraryapi.model.Book
-import io.github.libraryapi.model.BookGenre
+import io.github.libraryapi.model.enums.BookGenreEnum
 import io.github.libraryapi.model.toBookDTO
 import io.github.libraryapi.model.toGetBookResponseDTO
 import io.github.libraryapi.repository.BookRepository
+import io.github.libraryapi.security.SecurityService
 import io.github.libraryapi.service.specs.BookSpecs
 import io.github.libraryapi.validator.BookValidator
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -20,7 +20,8 @@ class BookService(
     private val bookRepository: BookRepository,
     private val authorService: AuthorService,
     private val bookValidator: BookValidator,
-    private val bookSpecs: BookSpecs
+    private val bookSpecs: BookSpecs,
+    private val securityService: SecurityService
 ) {
 
     fun save(request: RegisterBookDTO): BookDTO {
@@ -31,9 +32,10 @@ class BookService(
                 isbn = request.isbn,
                 title = request.title,
                 publishedDate = request.publishedDate,
-                genre = BookGenre.valueOf(request.genre ?: ""),
+                genre = BookGenreEnum.valueOf(request.genre ?: ""),
                 price = request.price ?: throw IllegalArgumentException("Price is required"),
-                author = authorService.getById(request.authorId ?: throw IllegalArgumentException("Author ID is required"))
+                author = authorService.getById(request.authorId ?: throw IllegalArgumentException("Author ID is required")),
+                user = securityService.getUserSigned()
             )
         ).toBookDTO()
     }
@@ -69,7 +71,7 @@ class BookService(
         book.isbn = dto.isbn ?: book.isbn
         book.title = dto.title ?: book.title
         book.publishedDate = dto.publishedDate ?: book.publishedDate
-        book.genre = dto.genre?.let { BookGenre.getValue(it) } ?: book.genre
+        book.genre = dto.genre?.let { BookGenreEnum.getValue(it) } ?: book.genre
         book.price = dto.price ?: book.price
         book.author = dto.authorId?.let { authorService.getById(it) } ?: book.author
 

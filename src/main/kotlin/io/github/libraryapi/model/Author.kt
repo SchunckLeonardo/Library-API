@@ -39,8 +39,9 @@ class Author {
     @Column(name = "updated_at") @LastModifiedDate
     private lateinit var updatedAt: LocalDateTime
 
-    @Column(name = "id_user")
-    private lateinit var userId: UUID
+    @ManyToOne
+    @JoinColumn(name = "id_user")
+    lateinit var user: User
 
 }
 

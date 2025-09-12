@@ -8,6 +8,9 @@ import io.github.libraryapi.model.toAuthorDTO
 import io.github.libraryapi.service.AuthorService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 import java.util.*
@@ -19,11 +22,13 @@ class AuthorController(
 ) {
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun save(
         @RequestBody @Valid author: AuthorDTO
     ): ResponseEntity<ResponseError> {
+
         val authorSaved = authorService.save(
-            author.toAuthor()
+            author
         )
 
         return ResponseEntity.created(
@@ -32,6 +37,7 @@ class AuthorController(
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun getById(
         @PathVariable("id") id: String
     ): ResponseEntity<AuthorDTO> {
@@ -45,6 +51,7 @@ class AuthorController(
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun delete(
         @PathVariable("id") id: String
     ): ResponseEntity<ResponseError> {
@@ -56,6 +63,7 @@ class AuthorController(
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun findAuthor(
         @RequestParam("name", required = false) name: String?,
         @RequestParam("nationality", required = false) nationality: String?,
@@ -68,6 +76,7 @@ class AuthorController(
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun update(
         @PathVariable("id") id: String,
         @RequestBody @Valid author: AuthorDTO

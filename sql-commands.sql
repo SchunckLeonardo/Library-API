@@ -22,3 +22,10 @@ create table tb_book (
     id_author uuid not null references tb_author(id),
     constraint chk_genre check (genre in ('FICTION', 'FANTASY', 'MYSTERY', 'ROMANCE', 'BIOGRAPHY', 'SCIENCE'))
 );
+
+create table tb_user (
+    id uuid not null primary key,
+    username varchar(50) not null unique,
+    password varchar(255) not null,
+    roles varchar[]
+)
