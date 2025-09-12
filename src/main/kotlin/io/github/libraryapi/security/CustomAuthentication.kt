@@ -6,7 +6,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 class CustomAuthentication(
-    private val user: User
+    val user: User
 ) : Authentication {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> =

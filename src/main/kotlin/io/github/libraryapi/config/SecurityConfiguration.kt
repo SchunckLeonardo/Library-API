@@ -1,6 +1,7 @@
 package io.github.libraryapi.config
 
 import io.github.libraryapi.security.CustomUserDetailsService
+import io.github.libraryapi.security.JwtCustomAuthenticationFilter
 import io.github.libraryapi.security.LoginSocialSuccessHandler
 import io.github.libraryapi.service.UserService
 import org.springframework.context.annotation.Bean
@@ -13,6 +14,9 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
@@ -20,12 +24,11 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 class SecurityConfiguration {
 
-    private final val ENCODER_STRENGHT = 10
-
     @Bean
     fun securityFilterChain(
         http: HttpSecurity,
-        successHandler: LoginSocialSuccessHandler
+        successHandler: LoginSocialSuccessHandler,
+        jwtCustomAuthenticationFilter: JwtCustomAuthenticationFilter
     ): SecurityFilterChain =
         http
             .csrf { it.disable() }
@@ -37,17 +40,23 @@ class SecurityConfiguration {
                 auth.requestMatchers(HttpMethod.POST, "/users/**").permitAll()
                 auth.anyRequest().authenticated()
             }
+            .oauth2ResourceServer { oauth2rs -> oauth2rs.jwt {}}
+            .addFilterAfter(jwtCustomAuthenticationFilter, BearerTokenAuthenticationFilter::class.java)
             .build()
-
-    fun userDetailsService(userService: UserService): UserDetailsService =
-        CustomUserDetailsService(userService)
-
-    @Bean
-    fun passwordEncoder(): PasswordEncoder =
-        BCryptPasswordEncoder(ENCODER_STRENGHT)
 
     @Bean
     fun grantedAuthorityDefaults(): GrantedAuthorityDefaults =
         GrantedAuthorityDefaults("")
+
+    @Bean
+    fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
+        val authoritiesConverter = JwtGrantedAuthoritiesConverter()
+        authoritiesConverter.setAuthorityPrefix("")
+
+        val converter = JwtAuthenticationConverter()
+        converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter)
+
+        return converter
+    }
 
 }
