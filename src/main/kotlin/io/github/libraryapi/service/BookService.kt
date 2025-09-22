@@ -10,6 +10,8 @@ import io.github.libraryapi.repository.BookRepository
 import io.github.libraryapi.security.SecurityService
 import io.github.libraryapi.service.specs.BookSpecs
 import io.github.libraryapi.validator.BookValidator
+import lombok.extern.slf4j.Slf4j
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -24,8 +26,12 @@ class BookService(
     private val securityService: SecurityService
 ) {
 
+    private val log = LoggerFactory.getLogger(BookService::class.java)
+
     fun save(request: RegisterBookDTO): BookDTO {
         bookValidator.validateIsbn(request.isbn ?: "")
+
+        log.info("save - $request")
 
         return bookRepository.save(
             Book(

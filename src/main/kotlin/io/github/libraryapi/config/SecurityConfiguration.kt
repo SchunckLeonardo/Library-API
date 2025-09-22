@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -38,11 +39,23 @@ class SecurityConfiguration {
             }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(HttpMethod.POST, "/users/**").permitAll()
+                auth.requestMatchers("/actuator/**").permitAll()
                 auth.anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2rs -> oauth2rs.jwt {}}
             .addFilterAfter(jwtCustomAuthenticationFilter, BearerTokenAuthenticationFilter::class.java)
             .build()
+
+    @Bean
+    fun webSecurityCustomizer(): WebSecurityCustomizer =
+        WebSecurityCustomizer { web ->
+            web.ignoring().requestMatchers(
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/actuator/**"
+            )
+        }
 
     @Bean
     fun grantedAuthorityDefaults(): GrantedAuthorityDefaults =
